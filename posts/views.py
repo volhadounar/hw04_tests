@@ -11,7 +11,7 @@ User = get_user_model()
 
 
 def index(request):
-    post_list = Post.objects.order_by('-pub_date').all()
+    post_list = Post.objects.all()
     paginator = Paginator(post_list, 10)
 
     page_number = request.GET.get('page')
@@ -25,16 +25,17 @@ def index(request):
 
 def group_posts(request, slug):
     group = get_object_or_404(Group, slug=slug)
-    post_list = Post.objects.order_by('-pub_date').all()
+    post_list = Post.objects.all()
     paginator = Paginator(post_list, 10)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
-    return render(request, 'group.html', {'group': group, 'page': page, 'paginator': paginator})
+    return render(request, 'group.html', {'group': group, 'page': page,
+                                          'paginator': paginator})
 
 
 @login_required
 def new_post(request):
-    if request.method != 'POST': 
+    if request.method != 'POST':
         form = PostForm()
         return render(request, 'newpost.html', {'form': form})
     form = PostForm(request.POST)
@@ -48,7 +49,7 @@ def new_post(request):
 
 def profile(request, username):
     post_user = get_object_or_404(User, username=username)
-    posts = Post.objects.filter(author=post_user).order_by('-pub_date')
+    posts = post_user.posts.all()
     paginator = Paginator(posts, 10)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
@@ -57,10 +58,11 @@ def profile(request, username):
 
 
 def post_view(request, username, post_id):
-    post = get_object_or_404(Post, id=post_id)
-    post_user = User.objects.get(id=post.author.id)
-    posts_count = Post.objects.filter(author=post_user).count()
-    return render(request, 'post.html', {'post': post, 'count': posts_count, 'post_user': post_user})
+    post_user = User.objects.get(username=username)
+    queryset = post_user.posts.all()
+    post = get_object_or_404(queryset, pk=post_id)
+    return render(request, 'post.html', {'post': post,
+                  'count': queryset.count(), 'post_user': post_user})
 
 
 def check_author(func):
@@ -83,7 +85,8 @@ def post_edit(request, username, post_id):
     edited_post = Post.objects.get(pk=post_id)
     form = PostForm(request.POST, instance=edited_post)
     if not form.is_valid():
-        return render(request, 'newpost.html', {'form': form, 'post': edited_post})
+        return render(request, 'newpost.html',
+                      {'form': form, 'post': edited_post})
     form.save()
     url = reverse('post', kwargs={'username': username, 'post_id': post_id})
     return redirect(url)
