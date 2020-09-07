@@ -59,10 +59,10 @@ def profile(request, username):
 
 def post_view(request, username, post_id):
     post_user = User.objects.get(username=username)
-    queryset = post_user.posts.all()
-    post = get_object_or_404(queryset, pk=post_id)
+    cnt = post_user.posts.all().count()
+    post = get_object_or_404(Post, pk=post_id, author__username=username)
     return render(request, 'post.html', {'post': post,
-                  'count': queryset.count(), 'post_user': post_user})
+                  'count': cnt, 'post_user': post_user})
 
 
 def check_author(func):
