@@ -85,7 +85,7 @@ def post_edit(request, username, post_id):
     edited_post = Post.objects.get(pk=post_id)
     form = PostForm(request.POST, instance=edited_post)
     if not form.is_valid():
-        return render(request, 'newpost.html',
+        return render(request, 'newpot.html',
                       {'form': form, 'post': edited_post})
     form.save()
     url = reverse('post', kwargs={'username': username, 'post_id': post_id})
