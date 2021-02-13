@@ -1,9 +1,7 @@
-Communities for posting. Post editing page, profile page and tests
+Communities for posting. 
 =================================
-
-
-Package django.test,
-Paginator
+Additional post editing page, profile page and tests.
+Tools: Django Unittest, Paginator
 
 
 Getting Started
